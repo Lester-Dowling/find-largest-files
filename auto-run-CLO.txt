@@ -1,0 +1,3 @@
+/home/ljdowling/Documents/
+/opt/
+/usr/

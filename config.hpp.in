@@ -1,0 +1,4 @@
+// Configuration header file
+constexpr unsigned long int PROJECT_VERSION_MAJOR = @PROJECT_VERSION_MAJOR@;
+constexpr unsigned long int PROJECT_VERSION_MINOR = @PROJECT_VERSION_MINOR@;
+const char* const APPLICATION_NAME = "@PROJECT_NAME@";
