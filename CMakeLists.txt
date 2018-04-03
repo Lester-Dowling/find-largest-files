@@ -113,3 +113,10 @@ if (WIN32)
     endif()
   endforeach(Boost_Lib)
 endif()
+
+
+### ############
+### Unit Testing
+### ############
+enable_testing ()
+add_subdirectory (test)

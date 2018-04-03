@@ -7,6 +7,7 @@
 #include <boost/filesystem.hpp>
 #include "config.hpp"
 #include "Largest_File_Sizes.hpp"
+#include "expand-user.hpp"
 
 namespace {
 	namespace fs = boost::filesystem;
@@ -34,7 +35,7 @@ int main(int argc, char* argv[])
 		}
 		Largest_File_Sizes results;
 		for (size_t idx = 1; idx < (size_t)argc; ++idx) {
-			results.recurse_through_directory(fs::canonical(argv[idx]));
+			results.recurse_through_directory(fs::canonical(expand_user(argv[idx])));
 		}
 		results.print_list();
 

@@ -1,3 +1,2 @@
 /home/ljdowling/Documents/
-/opt/
-/usr/
+~/Videos

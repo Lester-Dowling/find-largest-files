@@ -51,7 +51,7 @@ namespace {
 			units = "B";
 		}
 		std::ostringstream oss;
-		oss << std::fixed << std::setprecision(1) << std::setw(8) << hs << ' ' << units;
+		oss << std::fixed << std::setprecision(1) << hs << ' ' << units;
 		return oss.str();
 	}
 }
@@ -98,9 +98,10 @@ void Largest_File_Sizes::print_list()
 {
 	using std::cout;
 	using std::endl;
+	using std::setw;
 	std::reverse(mList.begin(), mList.end());
 	for (const auto& ps : mList) {
-		cout << human_file_size(ps._size) << '\t' << ps._path.string() << endl;
+		cout << setw(11) << human_file_size(ps._size) << '\t' << ps._path.string() << endl;
 	}
 }
 
@@ -120,8 +121,25 @@ void Largest_File_Sizes::print_list()
 
 BOOST_AUTO_TEST_SUITE(Largest_File_Sizes_cpp);
 
-BOOST_AUTO_TEST_CASE(test_ctor0)
+BOOST_AUTO_TEST_CASE(test_human_file_size_KB)
 {
+	const std::string hfs = human_file_size(1024);
+	const std::string expected = "1.0 KB";
+	BOOST_CHECK_EQUAL(hfs, expected);
+}
+
+BOOST_AUTO_TEST_CASE(test_human_file_size_MB)
+{
+	const std::string hfs = human_file_size(1024 * 1024);
+	const std::string expected = "1.0 MB";
+	BOOST_CHECK_EQUAL(hfs, expected);
+}
+
+BOOST_AUTO_TEST_CASE(test_human_file_size_GB)
+{
+	const std::string hfs = human_file_size(1024 * 1024 * 1024);
+	const std::string expected = "1.0 GB";
+	BOOST_CHECK_EQUAL(hfs, expected);
 }
 
 BOOST_AUTO_TEST_SUITE_END();
