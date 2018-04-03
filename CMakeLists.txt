@@ -5,7 +5,7 @@ project(find-largest-files VERSION 0.0.2 LANGUAGES CXX)
 ### The target executable
 ### #####################
 file(GLOB_RECURSE GLOB_PROJECT_SRC_FILES ${PROJECT_SOURCE_DIR}/src/*)
-add_executable(${PROJECT_NAME}  ${GLOB_PROJECT_SRC_FILES})
+add_executable(${PROJECT_NAME} main.cpp  ${GLOB_PROJECT_SRC_FILES})
 
 # Include top-level the project src tree:
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
