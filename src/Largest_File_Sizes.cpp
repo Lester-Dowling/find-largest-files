@@ -85,23 +85,23 @@ void Largest_File_Sizes::recurse_through_directory(const boost::filesystem::path
 		while (!directory_queue.empty()) {
 			const fs::path dir_pn = directory_queue.back();
 			directory_queue.pop_back();
-			for (const auto& x : fs::directory_iterator(dir_pn)) {
-				try {
+			try {
+				for (const auto& x : fs::directory_iterator(dir_pn)) {
 					const fs::path entry_pn = fs::canonical(x.path());
 					if (is_regular_file(entry_pn))
 						this->add(entry_pn);
 					else if (is_directory(entry_pn)) {
 						directory_queue.push_back(entry_pn);
 					}
-				} catch (const boost::filesystem::filesystem_error& e__) {
-					if (e__.code() == std::errc::too_many_symbolic_link_levels)
-						throw; // TODO: What should be done here?
-					if (e__.code() == std::errc::permission_denied) // ignored
-						return;
-					if (e__.code() == std::errc::no_such_file_or_directory) // ignored
-						return;
-					warn_filesystem(e__);
 				}
+			} catch (const boost::filesystem::filesystem_error& e__) {
+				if (e__.code() == std::errc::too_many_symbolic_link_levels)
+					throw; // TODO: What should be done here?
+				if (e__.code() == std::errc::permission_denied) // ignored
+					return;
+				if (e__.code() == std::errc::no_such_file_or_directory) // ignored
+					return;
+				warn_filesystem(e__);
 			}
 		}
 	}
