@@ -58,10 +58,9 @@ namespace {
 
 bool Largest_File_Sizes::contains(const boost::filesystem::path& pn)
 {
-	for (const auto& ps : mList) {
+	for (const auto& ps : mList)
 		if (ps._path == pn)
 			return true;
-	}
 	return false;
 }
 
@@ -77,31 +76,44 @@ void Largest_File_Sizes::add(const boost::filesystem::path& pn)
 
 void Largest_File_Sizes::recurse_through_directory(const boost::filesystem::path& pn)
 {
-	try {
-		if (is_regular_file(pn))
-			this->add(pn);
-		else if (is_directory(pn))
-			for (const auto& x : boost::filesystem::directory_iterator(pn))
-				this->recurse_through_directory(boost::filesystem::canonical(x.path()));
-	} catch (const boost::filesystem::filesystem_error& e__) {
-		if (e__.code() == std::errc::too_many_symbolic_link_levels)
-			throw;										// TODO: What should be done here?
-		if (e__.code() == std::errc::permission_denied) // ignored
-			return;
-		if (e__.code() == std::errc::no_such_file_or_directory) // ignored
-			return;
-		warn_filesystem(e__);
+	std::vector<fs::path> directory_queue;
+	directory_queue.reserve(1000);
+	if (is_regular_file(pn))
+		this->add(pn);
+	else if (is_directory(pn)) {
+		directory_queue.push_back(pn);
+		while (!directory_queue.empty()) {
+			const fs::path dir_pn = directory_queue.back();
+			directory_queue.pop_back();
+			for (const auto& x : fs::directory_iterator(dir_pn)) {
+				try {
+					const fs::path entry_pn = fs::canonical(x.path());
+					if (is_regular_file(entry_pn))
+						this->add(entry_pn);
+					else if (is_directory(entry_pn)) {
+						directory_queue.push_back(entry_pn);
+					}
+				} catch (const boost::filesystem::filesystem_error& e__) {
+					if (e__.code() == std::errc::too_many_symbolic_link_levels)
+						throw; // TODO: What should be done here?
+					if (e__.code() == std::errc::permission_denied) // ignored
+						return;
+					if (e__.code() == std::errc::no_such_file_or_directory) // ignored
+						return;
+					warn_filesystem(e__);
+				}
+			}
+		}
 	}
 }
 
-void Largest_File_Sizes::print_list()
+void Largest_File_Sizes::print_list(std::ostream& os)
 {
-	using std::cout;
 	using std::endl;
 	using std::setw;
 	std::reverse(mList.begin(), mList.end());
 	for (const auto& ps : mList) {
-		cout << setw(11) << human_file_size(ps._size) << '\t' << ps._path.string() << endl;
+		os << setw(11) << human_file_size(ps._size) << '\t' << ps._path.string() << endl;
 	}
 }
 
@@ -121,10 +133,24 @@ void Largest_File_Sizes::print_list()
 
 BOOST_AUTO_TEST_SUITE(Largest_File_Sizes_cpp);
 
+BOOST_AUTO_TEST_CASE(test_human_file_size_B)
+{
+	const std::string hfs = human_file_size(1);
+	const std::string expected = "1.0 B";
+	BOOST_CHECK_EQUAL(hfs, expected);
+}
+
 BOOST_AUTO_TEST_CASE(test_human_file_size_KB)
 {
 	const std::string hfs = human_file_size(1024);
 	const std::string expected = "1.0 KB";
+	BOOST_CHECK_EQUAL(hfs, expected);
+}
+
+BOOST_AUTO_TEST_CASE(test_human_file_size_9_9_KB)
+{
+	const std::string hfs = human_file_size(9.9 * 1024);
+	const std::string expected = "9.9 KB";
 	BOOST_CHECK_EQUAL(hfs, expected);
 }
 
@@ -135,11 +161,42 @@ BOOST_AUTO_TEST_CASE(test_human_file_size_MB)
 	BOOST_CHECK_EQUAL(hfs, expected);
 }
 
+BOOST_AUTO_TEST_CASE(test_human_file_size_2_5_MB)
+{
+	const std::string hfs = human_file_size(2.5 * 1024 * 1024);
+	const std::string expected = "2.5 MB";
+	BOOST_CHECK_EQUAL(hfs, expected);
+}
+
 BOOST_AUTO_TEST_CASE(test_human_file_size_GB)
 {
 	const std::string hfs = human_file_size(1024 * 1024 * 1024);
 	const std::string expected = "1.0 GB";
 	BOOST_CHECK_EQUAL(hfs, expected);
+}
+
+BOOST_AUTO_TEST_CASE(test_human_file_size_9_99_GB)
+{
+	const std::string hfs = human_file_size(9.99 * 1024 * 1024 * 1024);
+	const std::string expected = "10.0 GB";
+	BOOST_CHECK_EQUAL(hfs, expected);
+}
+
+BOOST_AUTO_TEST_CASE(test_add_contains)
+{
+	const fs::path p1{ "/var/log/Xorg.0.log" };
+	const fs::path p2{ "/var/log/auth.log" };
+	const fs::path p3{ "/var/log/kern.log" };
+	const fs::path p4{ "/var/log/syslog" };
+	Largest_File_Sizes lfs;
+	lfs.add(p1);
+	BOOST_CHECK(lfs.contains(p1));
+	lfs.add(p2);
+	BOOST_CHECK(lfs.contains(p2));
+	lfs.add(p3);
+	BOOST_CHECK(lfs.contains(p3));
+	lfs.add(p4);
+	BOOST_CHECK(lfs.contains(p4));
 }
 
 BOOST_AUTO_TEST_SUITE_END();

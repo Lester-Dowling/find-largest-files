@@ -5,7 +5,7 @@
  * @par     Copyright &copy; 2018 Lester J. Dowling.
  */
 #pragma once
-#include <cstddef>
+#include <iostream>
 #include <boost/noncopyable.hpp>
 #include <boost/filesystem.hpp>
 
@@ -34,23 +34,21 @@ class Largest_File_Sizes : private boost::noncopyable
 	std::vector<path_and_size> mList;
 	const size_t K{ K_default };
 
-	/**
-	 * Private method to determine if the given path has already been added to
-	 * the list.
-	 */
-	bool contains(const boost::filesystem::path& pn);
-
   public: // Ctors -------------------------------------------------------------
 	Largest_File_Sizes() = default;
 	virtual ~Largest_File_Sizes() = default;
 
-  public: // Accessors and Mutators --------------------------------------------
   public: // Methods -----------------------------------------------------------
 	/**
 	 * Add the given path of a regular file to the list.  It may be culled from
 	 * the list if its file size is too small.
 	 */
 	void add(const boost::filesystem::path& pn);
+
+	/**
+	 * Determine if the given path has already been added to the list.
+	 */
+	bool contains(const boost::filesystem::path& pn);
 
 	/**
 	 * Process each file in the given directory and recurse down any found
@@ -61,6 +59,6 @@ class Largest_File_Sizes : private boost::noncopyable
 	/**
 	 * Simply print out the list of discovered large files and their sizes.
 	 */
-	void print_list();
+	void print_list(std::ostream& os = std::cout);
 };
 // EOF

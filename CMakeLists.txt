@@ -32,11 +32,15 @@ configure_file (
 if (CMAKE_PREP_OUTPUT)
   message(STATUS "PREPROCESSOR OUTPUT ONLY")
   target_compile_options(${PROJECT_NAME} PRIVATE $<$<CXX_COMPILER_ID:GNU>:-E>)
-  # Destination of the preprocessor output:
+  # Destination directory of the preprocessor dump files:
   set(PREPROCESSED_DESTINATION_DIR "${PROJECT_SOURCE_DIR}/preprocessed")
   message(STATUS "PREPROCESSED_DESTINATION_DIR == ${PREPROCESSED_DESTINATION_DIR}")
+  # Simple hack which replaces the link command with a command to copy all the
+  # preprocessor dump files into the PREPROCESSED_DESTINATION_DIR:
   set(CMAKE_CXX_LINK_EXECUTABLE
 	"rsync --archive --update --chmod=400 --inplace --progress <OBJECTS>  ${PREPROCESSED_DESTINATION_DIR}")
+  # A convenient post-build command to remove the ".o" suffix from the
+  # preprocessor dump files:
   add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND
@@ -130,8 +134,7 @@ endif()
 ### ############
 ### Unit Testing
 ### ############
-# No testing if a preprocessor dump was requested:
-if (NOT CMAKE_PREP_OUTPUT)
+if (NOT CMAKE_PREP_OUTPUT) # No testing if a preprocessor dump was requested.
   enable_testing ()
   add_subdirectory (test)
 endif()
