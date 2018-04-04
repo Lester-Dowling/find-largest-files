@@ -30,8 +30,21 @@ configure_file (
 ### Preprocessor output dump
 ### ########################
 if (CMAKE_PREP_OUTPUT)
-  target_compile_options(${PROJECT_NAME} PRIVATE $<$<CXX_COMPILER_ID:GNU>:-E>)
   message(STATUS "PREPROCESSOR OUTPUT ONLY")
+  target_compile_options(${PROJECT_NAME} PRIVATE $<$<CXX_COMPILER_ID:GNU>:-E>)
+  # Destination of the preprocessor output:
+  set(PREPROCESSED_DESTINATION_DIR "${PROJECT_SOURCE_DIR}/preprocessed")
+  message(STATUS "PREPROCESSED_DESTINATION_DIR == ${PREPROCESSED_DESTINATION_DIR}")
+  set(CMAKE_CXX_LINK_EXECUTABLE
+	"rsync --archive --update --chmod=400 --inplace --progress <OBJECTS>  ${PREPROCESSED_DESTINATION_DIR}")
+  add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND
+	find ${PREPROCESSED_DESTINATION_DIR}
+	-name '*.o'
+	-exec basename -s '.o' '{}' \\\;
+	| xargs -I@   mv --verbose --force  ${PREPROCESSED_DESTINATION_DIR}/@.o  ${PREPROCESSED_DESTINATION_DIR}/@
+	)
 endif()
 
 ### ##################
@@ -81,35 +94,34 @@ target_link_libraries(${PROJECT_NAME}  ${Boost_LIBRARIES})
 # timer unit_test_framework wserialization
 
 ###
-### Copy required Boost DLLs next to the newly built exe.  Requires the variable
-### RUNTIME_OUTPUT_DIRECTORY to have been already defined.
+### Copy required Boost DLLs next to the newly built exe.
 ###
 if (WIN32)
   set(Boost_Do_Next_Copy                OFF)
   foreach(Boost_Lib ${Boost_LIBRARIES})
     MESSAGE( STATUS "Boost_Lib:  " ${Boost_Lib})
     if (Boost_Do_Next_Copy)
-      set(Boost_Do_Next_Copy OFF)
-      get_filename_component(Boost_Lib_Basename ${Boost_Lib} NAME_WE)
-      get_filename_component(Boost_Lib_Directory ${Boost_Lib} DIRECTORY)
-      set(Boost_DLL_path "${Boost_Lib_Directory}/${Boost_Lib_Basename}.dll")
-      file(TO_CMAKE_PATH ${Boost_DLL_path} Boost_DLL)
-      MESSAGE( STATUS "Boost_DLL:           " ${Boost_DLL})
-      add_custom_command(
+	  set(Boost_Do_Next_Copy OFF)
+	  get_filename_component(Boost_Lib_Basename ${Boost_Lib} NAME_WE)
+	  get_filename_component(Boost_Lib_Directory ${Boost_Lib} DIRECTORY)
+	  set(Boost_DLL_path "${Boost_Lib_Directory}/${Boost_Lib_Basename}.dll")
+	  file(TO_CMAKE_PATH ${Boost_DLL_path} Boost_DLL)
+	  MESSAGE( STATUS "Boost_DLL:           " ${Boost_DLL})
+	  add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${Boost_DLL}"
-        ${RUNTIME_OUTPUT_DIRECTORY})
+        ${PROJECT_BINARY_DIR})
     endif()
     if (CMAKE_BUILD_TYPE MATCHES "Debug")
-      if (Boost_Lib MATCHES "debug")
+	  if (Boost_Lib MATCHES "debug")
         set(Boost_Do_Next_Copy ON)
-      endif()
+	  endif()
     endif()
     if (CMAKE_BUILD_TYPE MATCHES "Release")
-      if (Boost_Lib MATCHES "optimized")
+	  if (Boost_Lib MATCHES "optimized")
         set(Boost_Do_Next_Copy ON)
-      endif()
+	  endif()
     endif()
   endforeach(Boost_Lib)
 endif()
@@ -118,5 +130,8 @@ endif()
 ### ############
 ### Unit Testing
 ### ############
-enable_testing ()
-add_subdirectory (test)
+# No testing if a preprocessor dump was requested:
+if (NOT CMAKE_PREP_OUTPUT)
+  enable_testing ()
+  add_subdirectory (test)
+endif()
