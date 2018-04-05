@@ -8,6 +8,6 @@ set -x # Trace execution -- for development only.
 # @date        Started 2018-04-04-15-40-10
 # @brief       Tell Firefox to open the GitHub page of this repo.
 
-REPO='https://github.com/Lester-Dowling/find-largest-files'
+REPO='https://github.com/Lester-Dowling/find-max-files'
 
 firefox "${REPO}" &

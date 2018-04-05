@@ -306,7 +306,6 @@ __pycache__/
 build/
 /captures
 .externalNativeBuild
-preprocessor-output/
 
 # RTags:
 compile_commands.json
@@ -328,6 +327,8 @@ books/
 
 # Preprocessor output:
 preprocessed/
+preprocessed-output/
+preprocessor-output/
 
 # mvn
 target/

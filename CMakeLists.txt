@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.9)
-project(find-largest-files VERSION 0.0.2 LANGUAGES CXX)
+project(find-max-files VERSION 0.0.2 LANGUAGES CXX)
 
 ### #####################
 ### The target executable
