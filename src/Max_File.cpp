@@ -1,10 +1,10 @@
 /**
- * @file    Largest_File_Sizes.cpp
+ * @file    Max_File.cpp
  * @date    Started Tue 03 Apr 2018 09:05:13 PM AEST
  * @author  Lester J. Dowling
  * @par     Copyright &copy; 2018 Lester J. Dowling.
  */
-#include "Largest_File_Sizes.hpp"
+#include "Max_File.hpp"
 #include <cstdlib>
 #include <algorithm>
 #include <iostream>
@@ -56,7 +56,7 @@ namespace {
 	}
 }
 
-bool Largest_File_Sizes::contains(const boost::filesystem::path& pn)
+bool Max_File::contains(const boost::filesystem::path& pn)
 {
 	for (const auto& ps : mList)
 		if (ps._path == pn)
@@ -64,7 +64,7 @@ bool Largest_File_Sizes::contains(const boost::filesystem::path& pn)
 	return false;
 }
 
-void Largest_File_Sizes::add(const boost::filesystem::path& pn)
+void Max_File::add(const boost::filesystem::path& pn)
 {
 	if (boost::filesystem::is_regular_file(pn) && !this->contains(pn)) {
 		mList.push_back({ pn, boost::filesystem::file_size(pn) });
@@ -74,7 +74,7 @@ void Largest_File_Sizes::add(const boost::filesystem::path& pn)
 	}
 }
 
-void Largest_File_Sizes::recurse_through_directory(const boost::filesystem::path& pn)
+void Max_File::recurse_through_directory(const boost::filesystem::path& pn)
 {
 	std::vector<fs::path> directory_queue;
 	directory_queue.reserve(1000);
@@ -107,7 +107,7 @@ void Largest_File_Sizes::recurse_through_directory(const boost::filesystem::path
 	}
 }
 
-void Largest_File_Sizes::print_list(std::ostream& os)
+void Max_File::print_list(std::ostream& os)
 {
 	using std::endl;
 	using std::setw;
@@ -131,7 +131,7 @@ void Largest_File_Sizes::print_list(std::ostream& os)
 #include <boost/test/test_case_template.hpp>
 #include <boost/bind.hpp>
 
-BOOST_AUTO_TEST_SUITE(Largest_File_Sizes_cpp);
+BOOST_AUTO_TEST_SUITE(Max_File_cpp);
 
 BOOST_AUTO_TEST_CASE(test_human_file_size_B)
 {
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE(test_add_contains)
 	const fs::path p2{ "/var/log/auth.log" };
 	const fs::path p3{ "/var/log/kern.log" };
 	const fs::path p4{ "/var/log/syslog" };
-	Largest_File_Sizes lfs;
+	Max_File lfs;
 	lfs.add(p1);
 	BOOST_CHECK(lfs.contains(p1));
 	lfs.add(p2);

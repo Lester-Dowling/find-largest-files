@@ -6,7 +6,7 @@
 #include <cmath>
 #include <boost/filesystem.hpp>
 #include "config.hpp"
-#include "Largest_File_Sizes.hpp"
+#include "Max_File.hpp"
 #include "expand-user.hpp"
 
 namespace {
@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 			std::cout << "Usage: find-largest-files directory-path" << std::endl;
 			return EXIT_FAILURE;
 		}
-		Largest_File_Sizes results;
+		Max_File results;
 		for (size_t idx = 1; idx < (size_t)argc; ++idx) {
 			results.recurse_through_directory(fs::canonical(expand_user(argv[idx])));
 		}

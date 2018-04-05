@@ -1,5 +1,5 @@
 /**
- * @file    Largest_File_Sizes.hpp
+ * @file    Max_File.hpp
  * @date    Started Tue 03 Apr 2018 09:05:13 PM AEST
  * @author  Lester J. Dowling
  * @par     Copyright &copy; 2018 Lester J. Dowling.
@@ -12,7 +12,7 @@
 /**
  * Keep a list of the top k file sizes.
  */
-class Largest_File_Sizes : private boost::noncopyable
+class Max_File : private boost::noncopyable
 {
 	/**
 	 * A private local pair to keep a regular file path and its corresponding
@@ -35,8 +35,8 @@ class Largest_File_Sizes : private boost::noncopyable
 	const size_t K{ K_default };
 
   public: // Ctors -------------------------------------------------------------
-	Largest_File_Sizes() = default;
-	virtual ~Largest_File_Sizes() = default;
+	Max_File() = default;
+	virtual ~Max_File() = default;
 
   public: // Methods -----------------------------------------------------------
 	/**
